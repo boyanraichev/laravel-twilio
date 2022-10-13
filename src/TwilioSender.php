@@ -2,9 +2,11 @@
 
 namespace Boyo\Twilio;
 
-use Boyo\Twilio\Exceptions\CouldNotSendMessage;
 use Twilio\Rest\Client;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+
+use Boyo\Twilio\Exceptions\CouldNotSendMessage;
 
 class TwilioSender
 {
@@ -51,9 +53,10 @@ class TwilioSender
 		try {
 			
 			$request = $message->getMessage();
-							
+				
 			if ($this->log) {
-				Log::channel($this->log_channel)->info('Twilio message',$request);
+				$call_id = Str::random(10);
+				Log::channel($this->log_channel)->info("Twilio message {$call_id}",$request);
 			}
 			
 			if ($this->send) {
@@ -66,14 +69,14 @@ class TwilioSender
 					],
 				);
 				
-				$result = (string) $response;
+				$result = (array) $response;
 				
 				if ($this->log) {
-					Log::channel($this->log_channel)->info('Twilio response: '.$result);
+					Log::channel($this->log_channel)->info("Twilio response {$call_id}",$result);
 				}
 				
-				if (!$response || !empty($response->error_code) || $response->status != 'sent') {
-					throw new CouldNotSendMessage($response->error_message ?? '');
+				if (!$response || !empty($response->errorCode)) {
+					throw new CouldNotSendMessage($response->errorMessage ?? '');
 				}
 				
 			}
