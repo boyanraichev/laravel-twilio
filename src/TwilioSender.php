@@ -58,7 +58,7 @@ class TwilioSender
 			
 			if ($this->send) {
 				
-				$response = $client->messages->create(
+				$response = $this->client->messages->create(
 					$request['to'],
 					[
 						'from' => $this->from,
